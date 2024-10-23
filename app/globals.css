@@ -2,6 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  :root {
+    --background: 0 0% 100%; /* White background */
+    --foreground: 210 10% 23%; /* Dark text color */
+    --card: 0 0% 100%; /* White card background */
+    --card-foreground: 210 10% 23%; /* Dark card text color */
+    --popover: 0 0% 100%; /* White popover background */
+    --popover-foreground: 210 10% 23%; /* Dark popover text */
+
+    --primary: 210 16% 93%; /* Light gray for secondary elements */
+    --primary-foreground: 210 10% 23%; /* Dark text on secondary elements */
+
+    --secondary: 180 70% 50%; /* Cyan primary color */
+    --secondary-foreground: 0 0% 100%; /* White text on primary */
+
+    --muted: 210 16% 93%; /* Muted gray for subtle backgrounds */
+    --muted-foreground: 210 8% 40%; /* Dark muted text */
+
+    --accent: 180 91% 51%; /* Cyan accent color */
+    --accent-foreground: 0 0% 100%; /* White text on accent */
+
+    --destructive: 0 60% 55%; /* Red destructive color */
+    --destructive-foreground: 0 0% 100%; /* White text on destructive */
+
+    --border: 210 16% 80%; /* Light gray borders */
+    --input: 210 16% 93%; /* Light gray input background */
+
+    --ring: 180 70% 50%; /* Cyan focus ring */
+    --radius: 0.5rem; /* Standard border radius */
+  }
+
+  .dark {
+    --background: 210 20% 10%; /* Dark background */
+    --foreground: 0 0% 95%; /* Light text */
+
+    --card: 210 20% 15%; /* Dark card background */
+    --card-foreground: 0 0% 95%; /* Light card text */
+
+    --popover: 210 20% 15%; /* Dark popover background */
+    --popover-foreground: 0 0% 95%; /* Light popover text */
+
+    --primary: 180 70% 50%; /* Cyan primary color */
+    --primary-foreground: 0 0% 95%; /* Light text on primary */
+
+    --secondary: 210 14% 28%; /* Dark gray for secondary elements */
+    --secondary-foreground: 0 0% 95%; /* Light text on secondary elements */
+
+    --muted: 210 14% 28%; /* Dark muted gray */
+    --muted-foreground: 0 0% 95%; /* Light muted text */
+
+    --accent: 180 70% 50%; /* Cyan accent color */
+    --accent-foreground: 0 0% 95%; /* Light text on accent */
+
+    --destructive: 0 60% 40%; /* Dark red for destructive actions */
+    --destructive-foreground: 0 0% 95%; /* Light text on destructive */
+
+    --border: 210 14% 28%; /* Darker borders */
+    --input: 210 14% 28%; /* Dark input background */
+
+    --ring: 180 70% 50%; /* Cyan focus ring */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

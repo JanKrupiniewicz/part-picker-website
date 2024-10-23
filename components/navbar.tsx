@@ -27,7 +27,7 @@ export function Navbar() {
         <NavigationMenu>
           <NavigationMenuList className="space-x-10">
             <NavigationMenuItem>
-              <Link href="/builder" legacyBehavior passHref>
+              <Link href="/list" legacyBehavior passHref>
                 <NavigationMenuLink>Builder</NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
