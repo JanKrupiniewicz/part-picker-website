@@ -16,64 +16,27 @@ import {
 } from "@/components/ui/table";
 import { Star, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-
-// Mock data for demonstration
-const products = [
-  {
-    id: 1,
-    name: "Corsair 4000D Airflow",
-    type: "ATX Mid Tower",
-    color: "Black",
-    powerSupply: "None",
-    sidePanel: "Tinted Tempered Glass",
-    externalVolume: "48.6 L",
-    internalBays: 2,
-    rating: 4.5,
-    reviews: 350,
-    price: 104.99,
-  },
-  {
-    id: 2,
-    name: "NZXT H5 Flow (2022)",
-    type: "ATX Mid Tower",
-    color: "Black",
-    powerSupply: "None",
-    sidePanel: "Tempered Glass",
-    externalVolume: "47.0 L",
-    internalBays: 1,
-    rating: 4.5,
-    reviews: 37,
-    price: 79.98,
-  },
-  {
-    id: 3,
-    name: "Montech XR",
-    type: "ATX Mid Tower",
-    color: "Black",
-    powerSupply: "None",
-    sidePanel: "Tempered Glass",
-    externalVolume: "45.0 L",
-    internalBays: 2,
-    rating: 5,
-    reviews: 4,
-    price: 63.9,
-  },
-  // Add more products as needed
-];
+import { useContext, useState } from "react";
+import { PartsContext } from "@/services/providers/PartsContext";
+import { Part, SAMPLE_PARTS } from "@/constants/sample-parts";
 
 const manufacturers = [
   "All",
   "Corsair",
+  "NZXT",
+  "Montech",
   "Fractal Design",
   "Lian Li",
-  "Montech",
-  "NZXT",
+  "Cooler Master",
+  "Phanteks",
+  "Thermaltake",
+  "be quiet!",
 ];
 
 export default function Products() {
   const router = useRouter();
   // const { category } = router.query;
+  const selectedPartsCtx = useContext(PartsContext);
   const [priceRange, setPriceRange] = useState([0, 200]);
   const [selectedManufacturers, setSelectedManufacturers] = useState(["All"]);
 
@@ -88,6 +51,11 @@ export default function Products() {
     }
   };
 
+  function addPart(product: Part): void {
+    selectedPartsCtx.addPart(product);
+    router.push("/list");
+  }
+
   return (
     <>
       <SiteTitle title={`Wybierz CPU`}></SiteTitle>
@@ -99,11 +67,11 @@ export default function Products() {
               <h2 className="text-xl font-semibold mb-4">Part List</h2>
               <div className="flex justify-between">
                 <span>Parts</span>
-                <span>1</span>
+                <span>{selectedPartsCtx.getNumerOfParts()}</span>
               </div>
               <div className="flex justify-between">
                 <span>Total</span>
-                <span>$476.76</span>
+                <span>{selectedPartsCtx.getFullPrice()}</span>
               </div>
               <div className="mt-2">
                 <span className="text-sm text-gray-600">
@@ -174,25 +142,17 @@ export default function Products() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[250px]">Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Color</TableHead>
-                  <TableHead>Side Panel</TableHead>
-                  <TableHead>Volume</TableHead>
                   <TableHead>Rating</TableHead>
                   <TableHead className="text-right">Price</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map((product) => (
+                {SAMPLE_PARTS.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell className="font-medium">
                       {product.name}
                     </TableCell>
-                    <TableCell>{product.type}</TableCell>
-                    <TableCell>{product.color}</TableCell>
-                    <TableCell>{product.sidePanel}</TableCell>
-                    <TableCell>{product.externalVolume}</TableCell>
                     <TableCell>
                       <div className="flex items-center">
                         {Array.from({ length: 5 }).map((_, i) => (
@@ -205,16 +165,15 @@ export default function Products() {
                             }`}
                           />
                         ))}
-                        <span className="ml-1 text-sm text-gray-600">
-                          ({product.reviews})
-                        </span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
                       ${product.price.toFixed(2)}
                     </TableCell>
                     <TableCell>
-                      <Button size="sm">Add</Button>
+                      <Button onClick={() => addPart(product)} size="sm">
+                        Add
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
