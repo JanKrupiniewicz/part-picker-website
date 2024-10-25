@@ -14,9 +14,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
 import { Star, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useContext, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
 import { PartsContext } from "@/services/providers/PartsContext";
 import { Part, SAMPLE_PARTS } from "@/constants/sample-parts";
 
@@ -35,10 +46,33 @@ const manufacturers = [
 
 export default function Products() {
   const router = useRouter();
-  // const { category } = router.query;
   const selectedPartsCtx = useContext(PartsContext);
-  const [priceRange, setPriceRange] = useState([0, 200]);
+
+  const [filteredParts, setFilteredParts] = useState<Part[]>(SAMPLE_PARTS);
+  const [priceRange, setPriceRange] = useState([100, 200]);
   const [selectedManufacturers, setSelectedManufacturers] = useState(["All"]);
+  const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const itemsPerPage = 4;
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredParts.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredParts.length / itemsPerPage);
+
+  const pathname = usePathname();
+  const category = pathname.split("/")[2];
+
+  function addPart(product: Part): void {
+    if (selectedPartsCtx.parts.find((part) => part.id === product.id)) {
+      return;
+    }
+
+    selectedPartsCtx.addPart(product);
+    router.push("/list");
+  }
 
   const handleManufacturerChange = (manufacturer: string) => {
     if (manufacturer === "All") {
@@ -51,14 +85,42 @@ export default function Products() {
     }
   };
 
-  function addPart(product: Part): void {
-    selectedPartsCtx.addPart(product);
-    router.push("/list");
+  function clearFilters() {
+    setPriceRange([100, 200]);
+    setSelectedManufacturers(["All"]);
+    setSelectedRatings([]);
+    setSearchTerm("");
   }
+
+  useEffect(() => {
+    let filtered = SAMPLE_PARTS;
+
+    filtered = filtered.filter((part) => part.price < priceRange[0]);
+
+    // // if (!selectedManufacturers.includes("All")) {
+    // //   filtered = filtered.filter((part) =>
+    // //     selectedManufacturers.includes(part.manufacturer)
+    // //   );
+    // // }
+
+    if (selectedRatings.length > 0) {
+      filtered = filtered.filter((part) =>
+        selectedRatings.includes(Math.floor(part.rating))
+      );
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter((part) =>
+        part.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredParts(filtered);
+  }, [priceRange, searchTerm, selectedManufacturers, selectedRatings]);
 
   return (
     <>
-      <SiteTitle title={`Wybierz CPU`}></SiteTitle>
+      <SiteTitle title={`Wybierz ${category}`}></SiteTitle>
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
@@ -75,7 +137,7 @@ export default function Products() {
               </div>
               <div className="mt-2">
                 <span className="text-sm text-gray-600">
-                  Estimated wattage: 162W
+                  Estimated wattage: {selectedPartsCtx.getEstimatedWattage()}
                 </span>
               </div>
             </div>
@@ -89,7 +151,7 @@ export default function Products() {
                     max={200}
                     step={1}
                     value={priceRange}
-                    onValueChange={setPriceRange}
+                    onValueChange={(e) => setPriceRange(e)}
                     className="mt-2"
                   />
                   <div className="flex justify-between mt-2">
@@ -115,7 +177,55 @@ export default function Products() {
                     </div>
                   ))}
                 </div>
-                {/* More filters as needed in progress */}
+                <div>
+                  <Label>Rating</Label>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Checkbox
+                      onClick={() =>
+                        setSelectedRatings((prevState) =>
+                          prevState.includes(5)
+                            ? prevState.filter((rating) => rating !== 5)
+                            : [...prevState, 5]
+                        )
+                      }
+                      id="5"
+                    />
+                    <Label htmlFor="5">5 Stars</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Checkbox
+                      onClick={() =>
+                        setSelectedRatings((prevState) =>
+                          prevState.includes(4)
+                            ? prevState.filter((rating) => rating !== 4)
+                            : [...prevState, 4]
+                        )
+                      }
+                      id="4"
+                    />
+                    <Label htmlFor="4">4 Stars</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Checkbox
+                      onClick={() =>
+                        setSelectedRatings((prevState) =>
+                          prevState.includes(3)
+                            ? prevState.filter((rating) => rating !== 3)
+                            : [...prevState, 3]
+                        )
+                      }
+                      id="3"
+                    />
+                    <Label htmlFor="3">3 Stars</Label>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => clearFilters()}
+                  variant="outline"
+                  size="sm"
+                >
+                  Clear Filters
+                </Button>
               </div>
             </div>
           </div>
@@ -135,7 +245,12 @@ export default function Products() {
               </div>
               <div className="relative">
                 <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <Input className="pl-8" placeholder="Search cases..." />
+                <Input
+                  className="pl-8"
+                  placeholder="Search cases..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
             </div>
             <Table>
@@ -148,7 +263,7 @@ export default function Products() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {SAMPLE_PARTS.map((product) => (
+                {currentItems.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell className="font-medium">
                       {product.name}
@@ -179,6 +294,40 @@ export default function Products() {
                 ))}
               </TableBody>
             </Table>
+
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    aria-disabled={currentPage === 1}
+                  />
+                </PaginationItem>
+                {[...Array(totalPages)].map((_, index) => (
+                  <PaginationItem key={index}>
+                    <PaginationLink
+                      href="#"
+                      onClick={() => setCurrentPage(index + 1)}
+                      isActive={currentPage === index + 1}
+                    >
+                      {index + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    aria-disabled={currentPage === totalPages}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         </div>
       </div>

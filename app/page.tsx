@@ -78,7 +78,10 @@ export default function Home() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {MAIN_CATEGORIES.map((category) => (
-                <Card className="hover:bg-gray-200 hover:drop-shadow-2xl hover:text-foreground">
+                <Card
+                  key={category.name}
+                  className="hover:bg-gray-200 hover:drop-shadow-2xl hover:text-foreground"
+                >
                   <Link
                     className="flex flex-col items-center justify-center p-4 "
                     href="/"
