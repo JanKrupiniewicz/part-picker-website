@@ -84,7 +84,7 @@ export default function Home() {
                 >
                   <Link
                     className="flex flex-col items-center justify-center p-4 "
-                    href="/"
+                    href={`/products/${category.name}`}
                   >
                     <category.icon className="h-12 w-12 mb-2 hover:scale-105" />
                     <CardTitle className="text-center">

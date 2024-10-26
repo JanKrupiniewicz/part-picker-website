@@ -65,7 +65,7 @@ export default function Builder() {
         <Tabs defaultValue="overview" className="w-full">
           <TabsList>
             <TabsTrigger value="overview">Przegląd</TabsTrigger>
-            <TabsTrigger value="prices">Prices By Merchant</TabsTrigger>
+            <TabsTrigger value="prices">Porównaj ceny</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-4">
             <BuilderListMenu />
@@ -111,7 +111,7 @@ export default function Builder() {
           </TabsContent>
           <TabsContent value="prices">
             {selectedPartsCtx.parts.length === 0 ? (
-              <div className="text-center text-xl font-semibold">
+              <div className="text-center text-2xl tracking-tight font-bold">
                 Dodaj części, aby zobaczyć ceny.
               </div>
             ) : (
