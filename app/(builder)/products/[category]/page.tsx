@@ -30,6 +30,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { PartsContext } from "@/services/providers/PartsContext";
 import { Part, SAMPLE_PARTS } from "@/constants/sample-parts";
+import ProductsTable from "@/components/products-table";
+import { SidebarFilters } from "@/components/sidebar-filters";
 
 const manufacturers = [
   "All",
@@ -54,7 +56,7 @@ export default function Products() {
   const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const itemsPerPage = 4;
+  const itemsPerPage = 10;
 
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -123,7 +125,6 @@ export default function Products() {
       <SiteTitle title={`Wybierz ${category}`}></SiteTitle>
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Sidebar */}
           <div className="w-full md:w-1/4 space-y-6">
             <div className="bg-white p-4 rounded-lg shadow">
               <h2 className="text-xl font-semibold mb-4">Part List</h2>
@@ -141,194 +142,25 @@ export default function Products() {
                 </span>
               </div>
             </div>
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Filters</h2>
-              <div className="space-y-4">
-                <div>
-                  <Label>Price Range</Label>
-                  <Slider
-                    min={0}
-                    max={200}
-                    step={1}
-                    value={priceRange}
-                    onValueChange={(e) => setPriceRange(e)}
-                    className="mt-2"
-                  />
-                  <div className="flex justify-between mt-2">
-                    <span>${priceRange[0]}</span>
-                    <span>${priceRange[1]}</span>
-                  </div>
-                </div>
-                <div>
-                  <Label>Manufacturer</Label>
-                  {manufacturers.map((manufacturer) => (
-                    <div
-                      key={manufacturer}
-                      className="flex items-center space-x-2 mt-2"
-                    >
-                      <Checkbox
-                        id={manufacturer}
-                        checked={selectedManufacturers.includes(manufacturer)}
-                        onCheckedChange={() =>
-                          handleManufacturerChange(manufacturer)
-                        }
-                      />
-                      <Label htmlFor={manufacturer}>{manufacturer}</Label>
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <Label>Rating</Label>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <Checkbox
-                      onClick={() =>
-                        setSelectedRatings((prevState) =>
-                          prevState.includes(5)
-                            ? prevState.filter((rating) => rating !== 5)
-                            : [...prevState, 5]
-                        )
-                      }
-                      id="5"
-                    />
-                    <Label htmlFor="5">5 Stars</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <Checkbox
-                      onClick={() =>
-                        setSelectedRatings((prevState) =>
-                          prevState.includes(4)
-                            ? prevState.filter((rating) => rating !== 4)
-                            : [...prevState, 4]
-                        )
-                      }
-                      id="4"
-                    />
-                    <Label htmlFor="4">4 Stars</Label>
-                  </div>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <Checkbox
-                      onClick={() =>
-                        setSelectedRatings((prevState) =>
-                          prevState.includes(3)
-                            ? prevState.filter((rating) => rating !== 3)
-                            : [...prevState, 3]
-                        )
-                      }
-                      id="3"
-                    />
-                    <Label htmlFor="3">3 Stars</Label>
-                  </div>
-                </div>
-                <Button
-                  onClick={() => clearFilters()}
-                  variant="outline"
-                  size="sm"
-                >
-                  Clear Filters
-                </Button>
-              </div>
-            </div>
+            <SidebarFilters
+              priceRange={priceRange}
+              setPriceRange={setPriceRange}
+              selectedManufacturers={selectedManufacturers}
+              handleManufacturerChange={handleManufacturerChange}
+              setSelectedRatings={setSelectedRatings}
+              clearFilters={clearFilters}
+              selectedRatings={selectedRatings}
+            />
           </div>
-          {/* Main content */}
-          <div className="w-full md:w-3/4">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm">
-                  Select All
-                </Button>
-                <Button variant="outline" size="sm">
-                  Select None
-                </Button>
-                <Button variant="outline" size="sm">
-                  Compare Selected
-                </Button>
-              </div>
-              <div className="relative">
-                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <Input
-                  className="pl-8"
-                  placeholder="Search cases..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[250px]">Name</TableHead>
-                  <TableHead>Rating</TableHead>
-                  <TableHead className="text-right">Price</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {currentItems.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell className="font-medium">
-                      {product.name}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${
-                              i < Math.floor(product.rating)
-                                ? "text-yellow-400 fill-current"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      ${product.price.toFixed(2)}
-                    </TableCell>
-                    <TableCell>
-                      <Button onClick={() => addPart(product)} size="sm">
-                        Add
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.max(prev - 1, 1))
-                    }
-                    aria-disabled={currentPage === 1}
-                  />
-                </PaginationItem>
-                {[...Array(totalPages)].map((_, index) => (
-                  <PaginationItem key={index}>
-                    <PaginationLink
-                      href="#"
-                      onClick={() => setCurrentPage(index + 1)}
-                      isActive={currentPage === index + 1}
-                    >
-                      {index + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                    }
-                    aria-disabled={currentPage === totalPages}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
+          <ProductsTable
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            addPart={addPart}
+            currentItems={currentItems}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={totalPages}
+          />
         </div>
       </div>
     </>

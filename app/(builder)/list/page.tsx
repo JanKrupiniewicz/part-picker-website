@@ -16,6 +16,7 @@ import { MAIN_CATEGORIES } from "@/constants/categories";
 import BuilderListMenu from "@/components/builder-list-menu";
 import { useContext } from "react";
 import { PartsContext } from "@/services/providers/PartsContext";
+import { PricesByMerchant } from "@/components/prices-by-merchant";
 
 export default function Builder() {
   const selectedPartsCtx = useContext(PartsContext);
@@ -63,7 +64,7 @@ export default function Builder() {
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="overview" className="w-full">
           <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="overview">Przegląd</TabsTrigger>
             <TabsTrigger value="prices">Prices By Merchant</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-4">
@@ -109,7 +110,13 @@ export default function Builder() {
             </div>
           </TabsContent>
           <TabsContent value="prices">
-            <p>Prices by merchant content goes here.</p>
+            {selectedPartsCtx.parts.length === 0 ? (
+              <div className="text-center text-xl font-semibold">
+                Dodaj części, aby zobaczyć ceny.
+              </div>
+            ) : (
+              <PricesByMerchant />
+            )}
           </TabsContent>
         </Tabs>
       </div>
